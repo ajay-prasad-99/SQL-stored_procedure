@@ -1,0 +1,327 @@
+--1
+Create or replace procedure procedure_name(parameter1  varchar)
+Returns varchar
+Language sql
+As
+$$
+Begin
+Return parameter1;
+End;
+$$;
+call procedure_name('hello');
+
+--2
+create or replace procedure ad (num1 float, num2 float) 
+returns float 
+language javascript 
+as 
+$$ 
+var ee = NUM1; 
+var rr = NUM2; 
+var tt = `${ee + rr}`; 
+return tt; 
+$$; 
+call ad(7, 4);
+
+-- 3 data adding on two diff table-- employee(EMPNO int,ENAME varchar,MGR int,HIREDATE date,SAL float,DEPTNAME varchar,E_MAIL varchar);
+
+
+create or replace procedure Data_adding(ENAME varchar,MGR numeric)
+returns varchar
+language sql
+as
+$$
+begin
+insert into employee(ENAME) values(:ENAME);
+  begin
+    insert into employee(MGR) values(:MGR);
+  end;
+return 'success';
+end;
+$$
+;
+
+CALL Data_adding('raghu','900000');
+
+select * from employee;
+
+-- 4
+
+create or replace procedure getdetails()
+returns varchar
+as
+$$
+begin
+select e.MGR , e.SAL from employee e;
+end;
+$$
+;
+
+call getdetails();
+select MGR , SAL from employee;
+
+
+-- 5 insert procedure
+
+create or replace procedure intt()
+returns varchar
+as 
+$$ 
+begin
+insert into employee values (1,'SMITH',3,'1980-12-17',800.00,'BANKING','SMITH@gmail.com'); 
+end;
+$$;
+
+call intt();
+
+select * from employee;
+
+--transaction and commit
+
+begin transaction ;
+call intt();
+commit;
+
+select * from employee;
+
+begin transaction ;
+call intt();
+rollback;
+
+
+-- 6 
+
+create or replace procedure getdd()
+returns varchar
+as
+$$
+begin 
+select * from employee;
+end;
+$$;
+
+call getdd();
+
+
+-- 7 ddl (create) on stored procedure
+
+CREATE OR REPLACE PROCEDURE InsertData()
+RETURNS INTEGER
+LANGUAGE SQL
+AS
+$$
+BEGIN 
+    CREATE OR REPLACE TABLE TestTable (
+      ID INT NOT NULL,
+      Val INT
+    );
+    INSERT INTO TestTable VALUES (1, 100);
+    INSERT INTO TestTable VALUES (2, 200);
+END;
+$$;
+
+call InsertData();
+
+select * from TestTable;
+
+begin transaction;
+call InsertData();
+rollback;
+
+show transactions;
+
+-- 8 purge and showing result set --return message
+
+CREATE OR REPLACE PROCEDURE purge_data()
+    RETURNS VARCHAR
+    LANGUAGE SQL
+AS
+ $$
+    DECLARE
+        message VARCHAR;
+    BEGIN
+        DELETE FROM TestTable WHERE id = 2;
+        message := 'id 2 is delete teky';
+        RETURN message;
+    END;
+ $$
+;
+
+call purge_data();
+
+-- 9 
+CREATE OR REPLACE PROCEDURE purge_data_by_status(in_status VARCHAR)
+    RETURNS VARCHAR
+    LANGUAGE SQL
+AS
+ $$
+    DECLARE
+        message VARCHAR;
+    BEGIN
+        DELETE FROM TestTable WHERE id = :in_status;
+        message := in_status ||' employees data deleted sucessfully';
+        RETURN message;
+    END;
+ $$
+;
+
+call purge_data_by_status(3); -- delete the values which from var (in_status)
+
+select * from TestTable;
+
+-- 10 -- LOOP 
+
+CREATE OR REPLACE PROCEDURE opp(@cnt int)
+RETURNS integer
+LANGUAGE SQL
+as
+$$
+Declare 
+   @cnt int = 0
+while (@cnt < 10)
+
+Begin
+print "this is a loop"
+set @cnt = @cnt + 1;
+End;
+$$;
+
+/*
+Declare 
+   @cnt int =0
+while (@cnt < 10)
+
+Begin
+print 'this is a loop'
+set @cnt = @cnt + 1;
+End;
+
+CREATE OR REPLACE PROCEDURE my_loop()
+RETURNS VARCHAR
+LANGUAGE JAVASCRIPT
+AS
+$$
+var cnt = 0;
+while (cnt < 10) {
+    snowflake.execute({sqlText:  'This is a loop'});
+    cnt = cnt + 1;
+}
+
+return 'Loop execution completed.';
+$$;
+*/
+CREATE OR REPLACE PROCEDURE my_loop()
+RETURNS VARCHAR
+LANGUAGE JAVASCRIPT
+AS
+$$
+var cnt = 0;
+var message = '';
+
+while (cnt < 10) 
+{
+    message = message || 'This is a loop\n';
+    cnt = cnt + 1;
+}
+
+return message;
+$$;
+
+CALL my_loop();
+
+
+--11  multiple functions
+
+CREATE OR REPLACE PROCEDURE my_stored_procedure()
+RETURNS VARCHAR
+LANGUAGE JAVASCRIPT
+AS
+$$
+
+function addNumbers(a, b) {
+    return a + b;
+}
+
+
+function subtractNumbers(a, b) {
+    return a - b;
+}
+
+
+function multiplyNumbers(a, b) {
+    return a * b;
+}
+
+
+function divideNumbers(a, b) {
+    if (b === 0) {
+        return 'Error: Division by zero';
+    }
+    return a / b;
+}
+
+var sum = addNumbers(5, 3);
+var difference = subtractNumbers(10, 7);
+var product = multiplyNumbers(4, 6);
+var quotient = divideNumbers(15, 3);
+
+return 'Sum: ' + sum + ', Difference: ' + difference + ', Product: ' + product + ', Quotient: ' + quotient;
+$$;
+
+CALL my_stored_procedure();
+
+--12 input with multiple parameters and call by multiple arguents
+--item_name VARCHAR, unit_price DECIMAL, quantity INT
+
+CREATE OR REPLACE PROCEDURE calculate_total_cost()
+RETURNS VARCHAR
+LANGUAGE JAVASCRIPT
+AS
+$$
+
+function total_cost (unit_price, quantity) {
+    return unit_price * quantity;
+}
+    var calcc = total_cost (9.99,5);
+    
+    return 'calc:' + calcc
+$$;
+
+call calculate_total_cost();
+
+
+/* CREATE OR REPLACE PROCEDURE calculate_total_cost(item_name VARCHAR, unit_price INT, quantity INT)
+RETURNS varchar
+LANGUAGE JAVASCRIPT
+AS
+$$
+    var total_cost = unit_price * quantity;
+    return total_cost;
+$$; 
+
+CREATE OR REPLACE FUNCTION calculate_total_cost(item_name VARCHAR, unit_price FLOAT, quantity INTEGER)
+  RETURNS FLOAT
+  AS
+  $$
+    SELECT unit_price * quantity as total cost;
+  $$
+  ;
+
+CREATE OR REPLACE FUNCTION calculate_total_cost(item_name VARCHAR, unit_price FLOAT, quantity INTEGER)
+  RETURNS FLOAT
+  AS
+  $$
+    RETURN unit_price * quantity;
+  $$
+  ;
+  
+  CREATE OR REPLACE FUNCTION calculate_total_cost(item_name VARCHAR, unit_price FLOAT, quantity INTEGER)
+  RETURNS FLOAT
+  AS
+  $$
+    DECLARE total_cost FLOAT;
+    SET total_cost = unit_price * quantity;
+    RETURN total_cost;
+  $$
+  ; */
+ ;okay;
