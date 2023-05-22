@@ -1,0 +1,82 @@
+alter procedure empdetails
+as 
+BEGIN
+ select * from employee;
+ 
+ select MGR from employee;
+END
+
+exec empdetails;
+-- all dml , ddl operations in stored procedure
+-- Return for err handling, always int value
+
+-- SP with in parameters
+
+create procedure studdet @sal int
+as
+BEGIN
+select * from employee where sal = @sal
+END
+
+declare @inpvar1 int = 800
+exec studdet @inpvar1
+exec studdet 800
+;
+-- SP with IN and Out Parameter( EMPNO int,ENAME varchar(20),MGR int,HIREDATE date,SAL float,DEPTNAME varchar(20),E_MAIL varchar(50));)
+
+
+create procedure studde (@inpvar INT,@outvar varchar(100) OUT)
+as
+begin
+
+select @outvar = ENAME from employee where MGR = @inpvar
+return 0
+
+END;
+
+select * from employee
+
+Declare @var1 int, @var3 int
+Declare @var2 varchar(100)
+set @var1 = 3
+exec @var3 = studde @var1, @var2 OUT
+select @var2, @var3
+
+;
+-- Sp with insert the new name- EMPNO int,ENAME varchar(20),MGR int,HIREDATE date,SAL float,DEPTNAME varchar(20),E_MAIL varchar(50))
+go
+create procedure insertnnewdata @ENAME varchar(20)
+as
+begin 
+insert into employee values (@ENAME)
+end;
+
+exec insertnnewdata 'Basha'
+
+;
+--sp to return region name when region id is provided as input
+
+create procedure returndetails (@regionid INT, @regionname varchar(50) OUT )
+as
+begin
+   select @regionname = Ename from employee where EMPNO= @regionid;
+end
+
+declare @regionnamee varchar(50)
+exec returndetails 5, @regionnamee out
+select @regionnamee
+
+select * from employee
+
+--sp to category as a input value change the category name as a output value
+
+create procedure changecat (@catid int, @catname varchar (50) out )
+as 
+begin
+
+select @catname = Ename from employee where EMPNO = @catid
+end
+
+declare @catnameo varchar (50)
+exec changecat 5, @catnameo out
+select @catnameo
