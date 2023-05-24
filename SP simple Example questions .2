@@ -1,0 +1,132 @@
+--17th
+
+--3q create an SP accepts customer id and then display cutomer name, Then
+--delete complete order_items associated
+
+CREATE PROCEDURE deleteOrderItemsofcustomer
+ (@customerid int)
+as
+BEGIN
+
+select * from sales.customers where customer_id = @customerid
+
+--select *
+delete oi
+from sales.customers C
+inner join sales.orders O on C.customer_id = O.customer_id
+inner join sales.order_items oi on o.order_id =oi.order_id
+where c.customer_id = @customerid
+
+end
+
+EXEC deleteOrderItemsofcustomer 259
+
+-- wasp which accepts Product name as input , fetch the list of customers (only customer name is enough)
+-- who purchased that product
+
+go
+
+
+create procedure getcustomernameUsingProductName
+  (@ProductName VARCHAR(100))
+AS
+BEGIN
+                                          --, p*  for select query
+     select C.FIRST_NAME + ' ' + C.LAST_NAME
+	 FROM sales.customers c
+	 inner join sales.orders O on C.customer_id = O.customer_id
+     inner join sales.order_items oi on o.order_id =oi.order_id
+	 inner join production.products p on oi.product_id = p.product_id
+     where p.product_name = @ProductName
+
+END
+
+--Surly Wednesday Frameset - 2016
+
+EXEC getcustomernameUsingProductName 'Surly Wednesday Frameset - 2016'
+
+
+--4Q. create an SP accepts customer id and then display cutomer name, Then
+--delete complete orderS associated
+
+CREATE PROCEDURE deleteOrderofcustomer
+ (@customerid int)
+as
+BEGIN
+
+select * from sales.customers where customer_id = @customerid
+
+--select *
+delete o
+from sales.customers C
+inner join sales.orders O on C.customer_id = O.customer_id
+where c.customer_id = @customerid
+
+END
+
+EXEC deleteOrderofcustomer
+
+/* Update the salary of the employees in Employees table based on jobid.
+-- then display all employee working in that designation
+   Job_id 1 -5 : 5%
+   Job_id 6 -10 : 10%
+   Job_id 11 -15 : 15%
+   Job_id 16 -20 : 20%
+*/
+
+   select * from employees;
+
+   select * from jobs;
+
+CREATE PROCEDURE updatesalarybasedonJob 
+   (@job_Id INT)
+AS
+BEGIN
+
+update employees set salary =
+                case when job_id BETWEEN 1 AND 5 THEN salary + (salary*5/100)
+				  when job_id BETWEEN 6 AND 10 THEN salary + (salary*10/100)
+				  when job_id BETWEEN 11 AND 15 THEN salary + (salary*15/100)
+				  when job_id BETWEEN 16 AND 20 THEN salary + (salary*20/100)
+
+
+where job_id =@job_Id
+
+
+select e.*,j.JOB_TITLE
+FROM employees e
+INNER JOIN jobs j on E.job_id = J.job_id
+where J.job_id = @jobId
+
+END
+
+
+-- Exceptional Handling----------------------------
+
+-- error code we can get the error details
+
+create procedure didvidebyzero
+AS
+BEGIN
+      begin try
+	     select 1/0 as RESULT
+	  end try
+	  begin catch
+	      select 'exception' + convert(varchar(100), @@ERROR)
+	  end catch
+END
+
+EXEC didvidebyzero
+;
+
+-- WASP to return all customer names if it contains keyword which is provided as input
+
+CREATE PROCEDURE getbyletter @letter varchar(10)
+as 
+begin
+
+select * from sales.customers where first_name like '%' + @letter + '%'
+
+END
+
+EXEC getbyletter 'lu'
