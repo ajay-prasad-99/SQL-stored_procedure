@@ -100,25 +100,6 @@ where J.job_id = @jobId
 
 END
 
-
--- Exceptional Handling----------------------------
-
--- error code we can get the error details
-
-create procedure didvidebyzero
-AS
-BEGIN
-      begin try
-	     select 1/0 as RESULT
-	  end try
-	  begin catch
-	      select 'exception' + convert(varchar(100), @@ERROR)
-	  end catch
-END
-
-EXEC didvidebyzero
-;
-
 -- WASP to return all customer names if it contains keyword which is provided as input
 
 CREATE PROCEDURE getbyletter @letter varchar(10)
