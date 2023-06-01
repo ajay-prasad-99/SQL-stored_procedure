@@ -147,3 +147,55 @@ RETURN
 
 SELECT * from dbo.udfProductInyear(2016);
 
+-- Multi statement table valued function
+
+CREATE FUNCTION udfContacts()
+	RETURNS @contacts TABLE ( 
+		first_name VARCHAR(50),
+		last_name VARCHAR(50),
+		email VARCHAR(255),
+		phone VARCHAR(25),
+		contact_type VARCHAR(20)
+		)
+AS
+BEGIN
+	INSERT INTO @contacts
+	SELECT
+		first_name,
+		last_name,
+		email,
+		phone,
+		'Staff'
+	FROM
+		sales.staffs;
+
+	INSERT INTO @contacts
+	SELECT
+		first_name,
+		last_name,
+		email,
+		phone,
+		 'Customer'
+	FROM
+		sales.customers;
+	RETURN;
+END;
+
+select * from dbo.udfcontacts()
+
+-- FUNCTION TO RETURN ORDER DETAILS BASED ON CUSTOMER_ID
+
+ALTER FUNCTION udf_getorderinfo(@customerId INT)
+RETURNS TABLE
+AS
+	RETURN 
+		SELECT C.first_name + ' ' + C.last_name AS CustomerName, O.*
+		FROM sales.customers C
+		INNER JOIN SALES.orders O ON C.customer_id = O.customer_id
+		WHERE C.customer_id = @customerId
+
+SELECT * FROM dbo.udf_getorderinfo(16)
+
+select * from sales.customers;
+
+select * from sales.orders;
